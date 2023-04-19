@@ -1,0 +1,20 @@
+.scalable-wrapper-container {
+  top: 50%;
+  left: 50%;
+  width: 1600px;
+  height: 900px;
+  display: block;
+  overflow: hidden;
+  position: relative;
+  transform: translate(-50%, -50%);
+  
+  .scalable-wrapper-inner {
+    top: 0;
+    left: 0;
+    width: 1600px;
+    height: 900px;
+    position: absolute;
+    display: inline-block;
+    transform-origin: left top;
+  }
+}
