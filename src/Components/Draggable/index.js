@@ -8,30 +8,76 @@ const DraggableComponent = (props) => {
   const {
     label,
     classes,
-    dataUniqueAttribute,
+    dataAttribute,
     disabled,
     onDraggableClick,
     accessibleList,
     accessibleListDropClickHandler,
     onFocus,
     onBlur,
-    draggableFunctions,
+    draggableWidget,
     isAriaHidden,
     children,
+    dragID,
+    commonDNDID,
+    style,
+
+    ///functions----------
+    onStartEvent,
+    onDragEvent,
+    onStopEvent,
+    onRevertEvent,
   } = props;
 
   const [isAccessibleListOpen, setIsAccessibleListOpen] = useState(false);
 
   useEffect(() => {
-    createDraggables(draggableFunctions);
+    createDraggables(draggableWidget);
   }, []);
 
-  const createDraggables = (draggableFunctions) => {
-    // setTimeout(() => {
-    $(".draggable-element").draggable({ ...draggableFunctions });
-    // .draggable("enable");
-    // }, 100);
+  useEffect(() => {
+    if (!disabled) {
+      $(`#drag_${dragID}`).draggable("enable");
+    } else {
+      $(`#drag_${dragID}`).draggable("disable");
+    }
+  }, [disabled]);
+
+  const createDraggables = (draggableWidget) => {
+    $(`#drag_${dragID}`).draggable({
+      ...draggableWidget,
+      start: function () {
+        if (commonDNDID != "" && commonDNDID !== undefined) {
+          var droppables = jQuery(".dropzone");
+          droppables.each(function (index, element) {
+            if (!$(element).hasClass(commonDNDID)) {
+              $(element).droppable("disable");
+            }
+          });
+        }
+        if (onStartEvent) onStartEvent();
+      },
+      drag: function (event, ui) {
+        if (onDragEvent) onDragEvent(event, ui);
+      },
+      stop: function () {
+        if (commonDNDID !== "" && commonDNDID !== undefined) {
+          var droppables = jQuery(".dropzone");
+          droppables.each(function (index, element) {
+            if (!$(element).hasClass("dropzone-disabled")) {
+              $(element).droppable("enable");
+            }
+          });
+        }
+        if (onStopEvent) onStopEvent();
+      },
+      revert: function (dropzone) {
+        if (onRevertEvent) onRevertEvent(dropzone);
+        if (!dropzone) return !dropzone;
+      },
+    });
   };
+
   const IOSOnClick = (e) => {
     if (isIOS) {
       setIsAccessibleListOpen(true);
@@ -50,7 +96,8 @@ const DraggableComponent = (props) => {
               setIsAccessibleListOpen(true);
               onDraggableClick();
             }}
-            data-drag-attribute={dataUniqueAttribute}
+            data-drag-id={dragID}
+            data-drag-attribute={dataAttribute}
             className="draggable-accessible-element"
             disabled={disabled}
             aria-hidden={isAriaHidden}
@@ -60,12 +107,16 @@ const DraggableComponent = (props) => {
             onClick={(e) => {
               IOSOnClick(e);
             }}
+            id={`drag_${dragID}`}
             //in IOS devices, screen reader follows bottom to top approach in a parent div,
             // so focus will not move to button and it will remain stay in this div only,
             //  so we are using onClick function here for IOS specific
             aria-hidden
-            data-drag-attribute={dataUniqueAttribute}
-            className="draggable-element"
+            data-drag-attribute={dataAttribute}
+            className={`draggable-element ${
+              commonDNDID !== undefined ? commonDNDID : ""
+            }`}
+            style={style}
           >
             {children ? children : null}
           </div>
@@ -87,13 +138,18 @@ DraggableComponent.defaultProps = {
   accessibleListDropClickHandler: () => {},
   accessibleList: [],
   isAriaHidden: false,
+  style: {},
 };
 
 DraggableComponent.propTypes = {
-  draggableFunctions: PropTypes.func,
+  draggableWidget: PropTypes.object,
   disabled: PropTypes.bool,
   classes: PropTypes.string,
-  dataUniqueAttribute: PropTypes.string,
+  dataAttribute: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.object,
+    PropTypes.number,
+  ]),
   onDraggableClick: PropTypes.func,
   accessibleListDropClickHandler: PropTypes.func,
   onFocus: PropTypes.func,
@@ -102,6 +158,14 @@ DraggableComponent.propTypes = {
   accessibleList: PropTypes.array,
   children: PropTypes.node,
   isAriaHidden: PropTypes.bool,
+  dragID: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+
+  //----events---------
+  onStartEvent: PropTypes.func,
+  onDragEvent: PropTypes.func,
+  onStopEvent: PropTypes.func,
+  onRevertEvent: PropTypes.func,
+  style: PropTypes.object,
 };
 
 export default DraggableComponent;
