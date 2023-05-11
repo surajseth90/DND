@@ -1,20 +1,24 @@
 .dropzone {
-    width: 100px;
-    height: 100px;
-    position: absolute;
-    background-color: aliceblue;
-    right: 200px;
-  }
-  
-  .dropzone-1 {
-    top: 200px;
-  }
-  
-  .dropzone-2 {
-    top: 400px;
-  }
-  
-  .dropzone-3 {
-    top: 600px;
-  }
-  
+  width: 100px;
+  height: 100px;
+  position: absolute;
+  background-color: white;
+  right: 200px;
+  border: 3px dashed;
+}
+
+.dropzone-0 {
+  top: 50px;
+}
+
+.dropzone-1 {
+  top: 250px;
+}
+
+.dropzone-2 {
+  top: 450px;
+}
+
+.dropzone-3 {
+  top: 650px;
+}
